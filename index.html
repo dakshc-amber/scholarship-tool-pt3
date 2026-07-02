@@ -571,7 +571,7 @@ avoid,
     var body={ model:"claude-sonnet-4-6", max_tokens:4000, messages:[{role:"user",content:prompt}] };
     if(searching){ body.tools=[{ type:"web_search_20250305", name:"web_search" }]; }
 
-    fetch("https://api.anthropic.com/v1/messages",{
+    fetch("/api/generate", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify(body)
