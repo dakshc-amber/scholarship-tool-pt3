@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Amber Scholar · Script Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1613; --muted:#8A7E74; --faint:#B4A99E;
+    --canvas:#FBF7F2; --card:#FFFFFF; --line:#EFE6DC; --line-2:#E5D8CB;
+    --c1:#ED3A56; --c2:#F14D50; --c3:#FF9539;
+    --wash-coral:#FFECEC; --wash-amber:#FFF3E6;
+    --grad:linear-gradient(92deg,#ED3A56 0%,#F14D50 45%,#FF9539 100%);
+    --sans:'Schibsted Grotesk', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --serif:'Newsreader', Georgia, serif;
+    --shadow:0 1px 2px rgba(26,22,19,.04), 0 12px 32px -18px rgba(26,22,19,.22);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--sans);background:var(--canvas);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5;}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 90px}
+
+  .masthead{margin-bottom:22px}
+  .kicker{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--c1);margin-bottom:12px;}
+  .kicker .dot{width:7px;height:7px;border-radius:50%;background:var(--grad)}
+  h1.title{font-size:clamp(30px,6vw,46px);font-weight:800;letter-spacing:-.03em;line-height:1.02;margin:0 0 10px;}
+  h1.title .em{font-family:var(--serif);font-style:italic;font-weight:500;letter-spacing:-.01em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.05em;}
+  .sub{color:var(--muted);font-size:15.5px;max-width:62ch}
+
+  .console{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 22px 20px;box-shadow:var(--shadow);margin-top:24px;position:relative;overflow:hidden;}
+  .console::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad)}
+
+  .group{margin-bottom:18px}
+  .group-label{font-size:12.5px;font-weight:700;color:var(--ink);letter-spacing:.01em;margin-bottom:9px;display:flex;align-items:center;gap:8px}
+  .group-label .opt{color:var(--faint);font-weight:500;letter-spacing:0}
+
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+  .field{flex:1;min-width:200px;display:flex;flex-direction:column;gap:7px}
+  .field.full{flex-basis:100%}
+  label{font-size:12px;font-weight:600;color:var(--ink)}
+  label .opt{color:var(--faint);font-weight:500}
+  input[type=text], textarea, select{font-family:var(--sans);font-size:14.5px;color:var(--ink);background:#FEFCFA;border:1px solid var(--line-2);border-radius:11px;padding:11px 13px;width:100%;transition:border-color .15s, box-shadow .15s;}
+  select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M3 4.5L6 7.5L9 4.5' stroke='%238A7E74' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+  textarea{resize:vertical;min-height:80px;line-height:1.55}
+  input::placeholder, textarea::placeholder{color:var(--faint)}
+  input:focus, textarea:focus, select:focus{outline:none;border-color:var(--c2);box-shadow:0 0 0 3px rgba(241,77,80,.13);}
+  .hint{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink);background:#fff;border:1.5px solid var(--line-2);border-radius:999px;padding:8px 15px;cursor:pointer;transition:all .14s;display:inline-flex;align-items:center;gap:7px}
+  .chip .e{font-size:14px}
+  .chip:hover{border-color:var(--c3)}
+  .chip.active{border-color:transparent;background:var(--grad);color:#fff;box-shadow:0 6px 16px -8px rgba(237,58,86,.6)}
+
+  .subpanel{background:#FCF8F3;border:1px solid var(--line);border-radius:13px;padding:16px 16px 14px}
+  .subpanel.ref{border-color:#F3D9CB;background:linear-gradient(180deg,#FFF8F1,#FCF8F3)}
+  .subpanel .sp-head{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--c1);margin-bottom:12px}
+  .subpanel .row{margin-bottom:12px}
+  .subpanel .row:last-of-type{margin-bottom:0}
+  .subpanel .hint{margin-top:10px}
+
+  .controls{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-top:4px}
+  .count-field{max-width:150px}
+  .grow{flex:1}
+
+  .btn{font-family:var(--sans);font-weight:700;font-size:15px;letter-spacing:.01em;color:#fff;background:var(--grad);border:none;border-radius:12px;padding:13px 22px;cursor:pointer;display:inline-flex;align-items:center;gap:9px;box-shadow:0 8px 20px -10px rgba(237,58,86,.7);transition:transform .12s, box-shadow .12s, opacity .12s;white-space:nowrap;}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 12px 24px -10px rgba(237,58,86,.75)}
+  .btn:active{transform:translateY(0)}
+  .btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+  .btn .arrow{font-size:17px;line-height:1}
+  .btn-ghost{font-family:var(--sans);font-weight:600;font-size:13px;color:var(--c1);background:transparent;border:1px solid var(--line-2);border-radius:10px;padding:9px 15px;cursor:pointer;transition:all .14s;}
+  .btn-ghost:hover{border-color:var(--c1);background:var(--wash-coral)}
+
+  .note{display:flex;gap:10px;align-items:flex-start;margin-top:16px;padding:11px 14px;background:var(--wash-amber);border:1px solid #F6E2C8;border-radius:11px;font-size:12.5px;color:#7A5A2E;line-height:1.5;}
+  .note b{color:#5E4520;font-weight:700}
+  .note .i{flex:none;font-family:var(--serif);font-style:italic;font-weight:600;color:var(--c3);font-size:16px;line-height:1.2}
+
+  .loading{display:none;text-align:center;padding:46px 20px 30px}
+  .loading.on{display:block}
+  .clapper{width:56px;height:56px;margin:0 auto 18px;position:relative;animation:snap 1.4s ease-in-out infinite}
+  .clapper .top{position:absolute;top:0;left:0;width:56px;height:16px;background:var(--grad);border-radius:4px;transform-origin:left bottom;animation:clap 1.4s ease-in-out infinite}
+  .clapper .body{position:absolute;bottom:0;left:0;width:56px;height:36px;background:var(--ink);border-radius:5px}
+  @keyframes clap{0%,100%{transform:rotate(0)}20%{transform:rotate(-24deg)}40%{transform:rotate(0)}}
+  @keyframes snap{0%,100%{transform:translateY(0)}45%{transform:translateY(-3px)}}
+  .loading p{color:var(--muted);font-size:14px;margin:0}
+  .loading .big{color:var(--ink);font-weight:700;font-size:16px;margin-bottom:4px}
+
+  .results{margin-top:30px}
+  .analysis{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow);margin-bottom:24px;}
+  .analysis .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--c1);margin-bottom:8px}
+  .analysis .read{font-family:var(--serif);font-style:italic;font-size:19px;line-height:1.4;color:var(--ink);margin:0 0 16px}
+  .patterns{display:flex;flex-direction:column;gap:9px}
+  .pattern{display:flex;gap:11px;align-items:flex-start;font-size:14px;color:var(--ink)}
+  .pattern .n{flex:none;width:22px;height:22px;border-radius:6px;background:var(--wash-coral);color:var(--c1);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+
+  .feed-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+  .feed-head h2{font-size:20px;font-weight:800;letter-spacing:-.02em;margin:0}
+  .feed-head .count{color:var(--muted);font-size:13.5px;font-weight:500}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:20px;opacity:0;transform:translateY(10px);animation:rise .5s cubic-bezier(.2,.7,.3,1) forwards;}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .card-top{padding:18px 20px 0;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .badge{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--ink);border-radius:999px;padding:5px 11px;white-space:nowrap;}
+  .badge.grad{background:var(--grad)}
+  .badge.cat{background:var(--wash-coral);color:var(--c1);border:1px solid #F6D2D2}
+  .dur{font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}
+  .card h3{font-size:20px;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin:12px 20px 0}
+
+  .hook{margin:14px 20px 0;padding:16px 18px 16px 20px;border-radius:12px;position:relative;background:linear-gradient(180deg,#FFF6EE, #FFEFEF);border:1px solid #F8DFD2;}
+  .hook::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:4px;border-radius:3px;background:var(--grad)}
+  .hook .lab{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--c1);margin-bottom:5px}
+  .hook .line{font-family:var(--serif);font-style:italic;font-size:21px;line-height:1.3;color:var(--ink)}
+
+  .why{margin:14px 20px 0;font-size:13.5px;color:var(--muted);line-height:1.55}
+  .why b{color:var(--ink);font-weight:600}
+
+  .sb-wrap{margin:16px 20px 0;border:1px solid var(--line);border-radius:11px;overflow:hidden}
+  .sb-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table.sb{border-collapse:collapse;width:100%;min-width:640px;font-size:12.5px}
+  table.sb th{background:#FAF4EE;text-align:left;font-weight:700;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:9px 11px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  table.sb td{padding:10px 11px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink);line-height:1.45}
+  table.sb tr:last-child td{border-bottom:none}
+  table.sb tr:nth-child(even) td{background:#FEFBF8}
+  .sb-n{font-weight:800;color:var(--c1)}
+  .sb-t{white-space:nowrap;color:var(--muted);font-weight:600}
+  .col-visual{min-width:180px}
+  .col-vo{min-width:170px;font-style:italic}
+  .col-text{min-width:150px;color:#5E4520}
+
+  .meta{margin:16px 20px 0;display:flex;flex-direction:column;gap:10px}
+  .meta .block .l{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:4px}
+  .meta .block .v{font-size:13.5px;color:var(--ink);line-height:1.5}
+  .meta .cap{color:var(--muted)}
+  .hashtags{color:var(--c1);font-weight:500}
+
+  .card-foot{padding:16px 20px 18px;margin-top:14px;border-top:1px solid var(--line);display:flex;justify-content:flex-end}
+  .copy-btn{font-family:var(--sans);font-weight:600;font-size:12.5px;color:var(--ink);background:#fff;border:1px solid var(--line-2);border-radius:9px;padding:8px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .14s;}
+  .copy-btn:hover{border-color:var(--c2);background:var(--wash-coral);color:var(--c1)}
+  .copy-btn.done{border-color:var(--c3);background:var(--wash-amber);color:#7A5A2E}
+
+  .more-row{text-align:center;margin-top:6px}
+  .btn-more{font-family:var(--sans);font-weight:700;font-size:14px;color:var(--c1);background:#fff;border:1.5px solid var(--line-2);border-radius:12px;padding:12px 24px;cursor:pointer;transition:all .14s;}
+  .btn-more:hover{border-color:var(--c1);background:var(--wash-coral)}
+  .btn-more:disabled{opacity:.5;cursor:not-allowed}
+
+  .err{display:none;margin-top:20px;background:#FFF4F4;border:1px solid #F8C9C9;border-radius:13px;padding:16px 18px;color:#9B2E2E;font-size:14px;line-height:1.55;}
+  .err.on{display:block}
+  .err b{font-weight:700}
+  .err code{background:#FBE3E3;border-radius:5px;padding:1px 6px;font-size:12.5px;color:#7E2222;font-family:ui-monospace,monospace}
+  .err .retry{margin-top:12px}
+
+  .footer-note{text-align:center;color:var(--faint);font-size:11.5px;margin-top:34px;line-height:1.5}
+
+  @media (max-width:560px){
+    .wrap{padding:22px 15px 70px}
+    .hook .line{font-size:19px}
+    .analysis .read{font-size:17px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important;transition:none !important}
+    .card{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <span class="kicker"><span class="dot"></span> Amber Scholar &middot; Reel engine</span>
+    <h1 class="title">Scripts that make<br>a dreamer <span class="em">hit apply.</span></h1>
+    <p class="sub">Purpose-built for the Amber Scholar programme. Point it at a reel you love, pick a dreamer, set the angle — and it writes hook-first scripts that meet students at the dream stage, shootable on an iPhone, laid out shot by shot, built to grow the page and drive applications.</p>
+  </header>
+
+  <section class="console">
+
+    <div class="group">
+      <div class="subpanel ref">
+        <div class="sp-head">Reference a reel or page &middot; optional, for sharper scripts</div>
+        <div class="row">
+          <div class="field full">
+            <label for="iglink">Instagram link</label>
+            <input type="text" id="iglink" placeholder="https://instagram.com/reel/… or a profile like instagram.com/amberstudent" autocomplete="off" spellcheck="false" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field full">
+            <label for="igcaption">Its caption / what's said in it <span class="opt">&mdash; paste this for an exact style-match</span></label>
+            <textarea id="igcaption" placeholder="Paste the reel's caption, or a quick transcript of what's said on screen. This is how the new script matches the reference's exact structure and clarity."></textarea>
+          </div>
+        </div>
+        <div class="hint">A browser can't read Instagram directly, so a link alone can't pull a reel's footage. With a link it'll research what's public about the page; paste the caption or transcript and it mirrors that reel's structure, pacing and clarity precisely.</div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-label">Which dreamer are we talking to?</div>
+      <div class="chips" id="chips">
+        <span class="chip active" data-e="&#127775;">All dreamers <span class="e">&#10024;</span></span>
+        <span class="chip" data-e="&#128218;">Academic Wizards <span class="e">&#129504;</span></span>
+        <span class="chip" data-e="&#127945;">All-Star Sports <span class="e">&#127945;</span></span>
+        <span class="chip" data-e="&#127912;">Creative Geniuses <span class="e">&#127912;</span></span>
+        <span class="chip" data-e="&#128640;">Founders &amp; Innovators <span class="e">&#128161;</span></span>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="row">
+        <div class="field">
+          <label for="goal">What should this script do?</label>
+          <select id="goal">
+            <option value="drive">Drive applications (deadline push)</option>
+            <option value="aware">Build awareness — "this exists"</option>
+            <option value="emote">Emotional / manifesto (dream-stage)</option>
+            <option value="myth">Myth-bust — "not just for toppers"</option>
+            <option value="how">Explain how it works</option>
+            <option value="winner">Winner energy (aspirational)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="format">Format</label>
+          <select id="format">
+            <option value="vary">Let it vary (recommended)</option>
+            <option value="confessional">Confessional UGC (bracketed directions)</option>
+            <option value="talkinghead">Talking head</option>
+            <option value="greenscreen">Green-screen react</option>
+            <option value="pov">POV</option>
+            <option value="ditl">Day-in-the-life</option>
+            <option value="commentcta">Host-led comment-CTA</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="lang">Language / market</label>
+          <select id="lang">
+            <option value="English">English</option>
+            <option value="Hinglish (Roman-script Hindi-English mix)">Hinglish</option>
+            <option value="Filipino / Tagalog">Filipino</option>
+            <option value="French">French</option>
+            <option value="Vietnamese">Vietnamese</option>
+            <option value="Thai">Thai</option>
+            <option value="Bahasa Indonesia">Indonesian</option>
+            <option value="Bahasa Malaysia">Malaysian</option>
+            <option value="Arabic">Arabic</option>
+            <option value="Korean">Korean</option>
+            <option value="Japanese">Japanese</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="subpanel">
+        <div class="sp-head">Scholarship details &middot; used in the scripts &amp; CTAs</div>
+        <div class="row">
+          <div class="field">
+            <label for="prize">Prize / hook</label>
+            <input type="text" id="prize" value="$50,000 Dream Fund" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="deadline">Application deadline <span class="opt">— leave blank if TBC</span></label>
+            <input type="text" id="deadline" placeholder="e.g. 31 March 2026" autocomplete="off" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="elig">Who can apply <span class="opt">— optional</span></label>
+            <input type="text" id="elig" placeholder="e.g. any student headed abroad" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="apply">How to apply / link <span class="opt">— optional</span></label>
+            <input type="text" id="apply" placeholder="e.g. link in bio / amberstudent.com/scholarship" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="field full">
+        <label for="worked">What's worked before? <span class="opt">— optional, sharpens everything</span></label>
+        <textarea id="worked" placeholder="Paste your best scholarship posts. Topic + format + rough reach is plenty, e.g.&#10;&bull; &quot;Cinematic manifesto: to every dreamer told to be realistic&quot; &mdash; 300k views&#10;&bull; &quot;POV: telling your parents you got the Dream Fund&quot; &mdash; talking-to-camera &mdash; big saves"></textarea>
+        <div class="hint">Different from the reference above: this is your own page's proven winners, so the batch is built in their DNA.</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="field count-field">
+        <label for="count">How many</label>
+        <select id="count">
+          <option value="3">3 scripts</option>
+          <option value="4">4 scripts</option>
+          <option value="5">5 scripts</option>
+        </select>
+      </div>
+      <div class="grow"></div>
+      <button class="btn" id="go"><span>Write the scripts</span> <span class="arrow">&rarr;</span></button>
+    </div>
+
+    <div class="note">
+      <span class="i">i</span>
+      <span><b>One thing:</b> the scripts use the scholarship details above verbatim, so set the real deadline and apply link before you ship — anything left blank stays deliberately vague rather than made up.</span>
+    </div>
+  </section>
+
+  <div class="loading" id="loading">
+    <div class="clapper"><div class="top"></div><div class="body"></div></div>
+    <p class="big" id="loadTitle">Reading the dream-stage brief&hellip;</p>
+    <p id="loadSub">Finding the feeling that stops the scroll</p>
+  </div>
+
+  <div class="err" id="err">
+    <b>That didn't land.</b> <span id="errMsg">The generator hit a snag.</span>
+    <div class="retry"><button class="btn-ghost" id="retry">Try again</button></div>
+  </div>
+
+  <div class="results" id="results"></div>
+
+  <p class="footer-note">Scripts are generated live inside Claude and are starting points — swap in real dreamers, cities and cultural beats. Struggle leads, Amber follows. Shoot vertical, hook in the first 2 seconds.</p>
+
+</div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var goBtn=$('go'), loading=$('loading'), loadTitle=$('loadTitle'), loadSub=$('loadSub');
+  var results=$('results'), errBox=$('err'), errMsg=$('errMsg');
+  var scriptIndex = 0, loaderTimer = null, selectedDreamer = 'All dreamers', searching = false;
+
+  $('chips').addEventListener('click', function(e){
+    var chip = e.target.closest('.chip');
+    if(!chip) return;
+    Array.prototype.forEach.call($('chips').children, function(c){ c.classList.remove('active'); });
+    chip.classList.add('active');
+    selectedDreamer = chip.childNodes[0].textContent.trim();
+  });
+
+  var baseStages = [
+    ['Reading the dream-stage brief\u2026','Finding the feeling that stops the scroll'],
+    ['Writing the hook\u2026','The first 2 seconds that earn the watch'],
+    ['Boarding the shots\u2026','Turning it into something shootable on a phone'],
+    ['Sharpening the CTA\u2026','Making the apply feel inevitable']
+  ];
+  function startLoader(){
+    var stages = searching ? [['Looking up the reference\u2026','Reading what\u2019s public about the page']].concat(baseStages) : baseStages;
+    var i=0;
+    loadTitle.textContent = stages[0][0]; loadSub.textContent = stages[0][1];
+    loaderTimer = setInterval(function(){
+      i=(i+1)%stages.length;
+      loadTitle.textContent = stages[i][0]; loadSub.textContent = stages[i][1];
+    }, 1900);
+  }
+  function stopLoader(){ if(loaderTimer){ clearInterval(loaderTimer); loaderTimer=null; } }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  var GOALS = {
+    drive:'Drive applications with real urgency and a clear next step.',
+    aware:'Build awareness that Amber Scholar even exists \u2014 pure discovery, no hard sell.',
+    emote:'Land an emotional, manifesto-style gut-punch about daring to dream of studying abroad.',
+    myth:'Bust the myth that scholarships are only for top rankers / rich kids / "perfect" students.',
+    how:'Clearly and warmly explain how the scholarship works and how to apply.',
+    winner:'Show aspirational winner energy \u2014 what life looks like once a dreamer gets backed.'
+  };
+  var FORMATS = {
+    vary:'Vary the formats across the scripts \u2014 do not make them all the same.',
+    confessional:'Use amber\u2019s locked confessional UGC template: an intimate first-person to-camera confessional, written as a monologue with [bracketed stage directions] for every visual/action beat. Hook must still land in under 2 seconds.',
+    talkinghead:'Talking head \u2014 one person speaking straight to camera.',
+    greenscreen:'Green-screen react \u2014 host reacts to a screenshot, comment, stat or post behind them.',
+    pov:'POV \u2014 first-person "POV:" framing that puts the viewer inside the moment.',
+    ditl:'Day-in-the-life \u2014 stitched real-life moments with voiceover.',
+    commentcta:'Host-led comment-CTA \u2014 host teases value and drives people to comment a keyword (the "idk why nobody is talking about this" energy).'
+  };
+
+  function buildPrompt(count, existing){
+    var goalKey=$('goal').value, formatKey=$('format').value, lang=$('lang').value;
+    var prize=$('prize').value.trim()||'a scholarship Dream Fund';
+    var deadline=$('deadline').value.trim();
+    var elig=$('elig').value.trim();
+    var apply=$('apply').value.trim();
+    var worked=$('worked').value.trim();
+    var iglink=$('iglink').value.trim();
+    var igcap=$('igcaption').value.trim();
+
+    var deadlineLine = deadline ? 'Application deadline: ' + deadline + ' \u2014 use this to create genuine urgency.' : 'No deadline was provided \u2014 keep urgency generic ("applications are open now"). DO NOT invent a date.';
+    var eligLine = elig ? 'Who can apply: ' + elig : 'Eligibility not specified \u2014 keep it broad and inclusive; do NOT invent specific criteria.';
+    var applyLine = apply ? 'How to apply: ' + apply + ' \u2014 use this exact wording in the CTA.' : 'No apply link given \u2014 CTA should point people to the link in bio / amber\u2019s scholarship page. Do NOT invent a URL.';
+
+    var dreamerLine = selectedDreamer === 'All dreamers'
+      ? 'Spread the scripts across amber\u2019s four dreamer categories (Academic Wizards, All-Star Sports, Creative Geniuses, Founders & Innovators) OR keep them broadly inclusive. Set the "category" field on each script accordingly.'
+      : 'Focus every script on the "' + selectedDreamer + '" dreamer type \u2014 their specific world, struggles, slang and dream. Set each script\u2019s "category" field to "' + selectedDreamer + '".';
+
+    var refBlock = '';
+    if(iglink || igcap){
+      refBlock = '\nREFERENCE the creator wants to emulate for style and clarity:';
+      if(iglink) refBlock += '\nLink: ' + iglink + ' \u2014 research any public context you can find about this page/creator (who they are, what they post, their tone).';
+      if(igcap) refBlock += '\nIts caption / transcript:\n' + igcap + '\nMatch this reference\u2019s structure, pacing, tone and \u2014 above all \u2014 its CLARITY. Do NOT copy it; write fresh Amber Scholar scripts that hit the same punch and legibility.';
+      refBlock += '\n';
+    }
+
+    var workedBlock = worked
+      ? 'POSTS THAT ALREADY WORKED for this page \u2014 reverse-engineer the hook style, format and emotional angle that are clearly landing, and write the new scripts in that same DNA:\n' + worked
+      : 'No past-performance data provided \u2014 use the strongest proven short-form formats for a youth scholarship campaign.';
+
+    var avoid = existing && existing.length
+      ? '\n\nDo NOT repeat these concepts already generated: ' + existing.join(' | ') + '. Bring fresh, distinct angles.'
+      : '';
+
+    return [
+'You are a world-class short-form scriptwriter for AMBER (amberstudent.com), the global student-housing platform. You are writing reels ONLY for AMBER SCHOLAR \u2014 amber\u2019s scholarship programme that backs ambitious students ("dreamers") with a Dream Fund to fuel their study-abroad journey. Every script exists to grow the page and drive scholarship applications.',
+'',
+'AMBER BRAND TRUTH (bake in, never state literally):',
+'\u2022 amber is a companion at the DREAM STAGE \u2014 it shows up when a student first dares to dream of studying abroad, long before they book anything. Tap that scared/excited/hopeful energy.',
+'\u2022 STRUGGLE LEADS, BRAND FOLLOWS (~70/30): open on the student\u2019s real feeling, doubt or dream. NEVER open on the brand. Bring in Amber Scholar only once the emotional hook has landed, as the thing that makes the dream possible.',
+'\u2022 Warm, real, a little cinematic. Rooting for the underdog.',
+refBlock,
+'CAMPAIGN INPUTS:',
+'Prize / hook: ' + prize,
+deadlineLine,
+eligLine,
+applyLine,
+'Dreamer focus: ' + dreamerLine,
+'Goal of these scripts: ' + (GOALS[goalKey]||GOALS.drive),
+'Format: ' + (FORMATS[formatKey]||FORMATS.vary),
+'Language: write ALL hooks, dialogue/voiceover, on-screen text, captions and CTAs in ' + lang + '. Keep only the internal "title" and "format" labels in English.',
+'',
+workedBlock,
+'',
+'TASK: Write ' + count + ' original UGC reel scripts. Every script MUST obey ALL rules:',
+'1. HOOK-FIRST: first line stops the scroll in under 2 seconds (pattern-interrupt, bold claim, relatable POV, or "wait, what?").',
+'2. SHOOTABLE ON AN IPHONE: one person, natural light, real locations (bedroom, street, campus, cafe). No studio, crew, paid actors or heavy VFX. Green-screen / text-on-screen / voiceover-over-broll are fine.',
+'3. TRUE & MAKES A VALID POINT: genuinely useful, honest and specific to this dreamer and to studying abroad \u2014 never clickbait that lies. Real takeaway.',
+'4. HIGH VIEW POTENTIAL: engineered for saves, shares, rewatches or comments.',
+'5. 15\u201335 SECONDS, tight. Every second earns its place.',
+'6. Land the chosen goal, dreamer focus and format.',
+'7. CLARITY ABOVE ALL: every "visual" is concrete and unambiguous \u2014 someone could shoot it with zero guesswork. Every "vo" line is the exact words to say, not a summary. The takeaway is crystal clear. No vague directions like "show something cool".',
+avoid,
+'',
+'Return ONLY a raw JSON object. No markdown, no code fences, no commentary. If you used web search, finish all searching first, then output ONLY the JSON as your final message. Exact shape:',
+'{',
+'  "campaign_read": "one punchy sentence on the angle these scripts take to win applications",',
+'  "plays": ["3 to 4 short, specific notes on what will make THIS batch convert for THIS dreamer"],',
+'  "scripts": [',
+'    {',
+'      "title": "short internal name (English)",',
+'      "category": "one of: Academic Wizards, All-Star Sports, Creative Geniuses, Founders & Innovators, All dreamers",',
+'      "format": "the format label (English)",',
+'      "hook": "the exact first spoken/on-screen line \u2014 the 2-second hook",',
+'      "why": "1 sentence on why it stops the scroll and drives applications",',
+'      "duration": "e.g. 24s",',
+'      "shots": [ {"n":1,"time":"0\u20133s","visual":"exactly what the camera sees + how to shoot it on a phone","vo":"the exact words spoken/voiced over","text":"on-screen text and/or SFX cue"} ],',
+'      "caption": "ready-to-post caption in amber\u2019s voice",',
+'      "hashtags": "6\u201310 relevant hashtags separated by spaces",',
+'      "cta": "the specific apply CTA / comment-bait"',
+'    }',
+'  ]',
+'}',
+'Give each script 4 to 6 shots. Keep everything tight, concrete and real. Output JSON only.'
+    ].join('\n');
+  }
+
+  function extractJson(text){
+    if(!text) return null;
+    var t = text.replace(/```json/gi,'').replace(/```/g,'');
+    var anchor = t.indexOf('"campaign_read"');
+    var start = anchor !== -1 ? t.lastIndexOf('{', anchor) : t.indexOf('{');
+    var end = t.lastIndexOf('}');
+    if(start === -1 || end === -1 || end < start) return null;
+    var slice = t.slice(start, end+1);
+    try { return JSON.parse(slice); }
+    catch(e){ try { return JSON.parse(slice.replace(/,\s*([\]}])/g,'$1')); } catch(e2){ return null; } }
+  }
+
+  function renderAnalysis(data){
+    if(document.getElementById('analysisBox')) return;
+    var box=document.createElement('div');
+    box.className='analysis'; box.id='analysisBox';
+    var pats=(data.plays||data.patterns||[]).map(function(p,i){
+      return '<div class="pattern"><span class="n">'+(i+1)+'</span><span>'+esc(p)+'</span></div>';
+    }).join('');
+    box.innerHTML='<div class="eyebrow">The play</div>'+
+      '<p class="read">'+esc(data.campaign_read||data.niche_read||'')+'</p>'+
+      '<div class="patterns">'+pats+'</div>';
+    results.appendChild(box);
+    var head=document.createElement('div');
+    head.className='feed-head'; head.id='feedHead';
+    head.innerHTML='<h2>Your scripts</h2><span class="count" id="feedCount"></span>';
+    results.appendChild(head);
+  }
+
+  function scriptToPlainText(s){
+    var L=[];
+    L.push(s.title+'  ('+s.format+(s.category&&s.category!=='All dreamers'?', '+s.category:'')+', '+s.duration+')');
+    L.push('');
+    L.push('HOOK: '+s.hook);
+    L.push('');
+    L.push('STORYBOARD');
+    (s.shots||[]).forEach(function(sh){
+      L.push('['+sh.n+'] '+sh.time);
+      L.push('  Visual: '+sh.visual);
+      L.push('  VO/Dialogue: '+sh.vo);
+      if(sh.text) L.push('  On-screen/SFX: '+sh.text);
+    });
+    L.push('');
+    L.push('CAPTION: '+s.caption);
+    if(s.hashtags) L.push(s.hashtags);
+    L.push('CTA: '+s.cta);
+    return L.join('\n');
+  }
+
+  function renderCard(s){
+    scriptIndex++;
+    var rows=(s.shots||[]).map(function(sh){
+      return '<tr><td class="sb-n">'+esc(sh.n)+'</td><td class="sb-t">'+esc(sh.time)+'</td>'+
+        '<td class="col-visual">'+esc(sh.visual)+'</td><td class="col-vo">'+esc(sh.vo)+'</td>'+
+        '<td class="col-text">'+esc(sh.text||'')+'</td></tr>';
+    }).join('');
+    var catBadge = (s.category && s.category!=='All dreamers') ? '<span class="badge cat">'+esc(s.category)+'</span>' : '';
+    var card=document.createElement('div');
+    card.className='card';
+    card.innerHTML=
+      '<div class="card-top"><div class="badges"><span class="badge grad">'+esc(s.format||'Reel')+'</span>'+catBadge+'</div><span class="dur">'+esc(s.duration||'')+'</span></div>'+
+      '<h3>'+esc(s.title||'Untitled')+'</h3>'+
+      '<div class="hook"><div class="lab">The hook \u00b7 first 2s</div><div class="line">\u201c'+esc(s.hook||'')+'\u201d</div></div>'+
+      '<div class="why"><b>Why it works:</b> '+esc(s.why||'')+'</div>'+
+      '<div class="sb-wrap"><div class="sb-scroll"><table class="sb"><thead><tr><th>Shot</th><th>Time</th><th>Visual</th><th>VO / Dialogue</th><th>On-screen text / SFX</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>'+
+      '<div class="meta"><div class="block"><div class="l">Caption</div><div class="v cap">'+esc(s.caption||'')+' <span class="hashtags">'+esc(s.hashtags||'')+'</span></div></div>'+
+      '<div class="block"><div class="l">CTA / comment-bait</div><div class="v">'+esc(s.cta||'')+'</div></div></div>'+
+      '<div class="card-foot"><button class="copy-btn"><span>Copy script</span></button></div>';
+    card.querySelector('.copy-btn')._plain=scriptToPlainText(s);
+    results.appendChild(card);
+  }
+
+  results.addEventListener('click', function(e){
+    var btn=e.target.closest('.copy-btn');
+    if(btn){
+      navigator.clipboard.writeText(btn._plain||'').then(function(){
+        btn.classList.add('done'); btn.querySelector('span').textContent='Copied \u2713';
+        setTimeout(function(){ btn.classList.remove('done'); btn.querySelector('span').textContent='Copy script'; },1600);
+      });
+      return;
+    }
+    if(e.target.closest('#moreBtn')){ run(false); }
+  });
+
+  function updateCount(){ var c=document.getElementById('feedCount'); if(c){ c.textContent=scriptIndex+(scriptIndex===1?' script':' scripts'); } }
+  function ensureMoreButton(){
+    var old=document.getElementById('moreRow'); if(old) old.remove();
+    var row=document.createElement('div'); row.className='more-row'; row.id='moreRow';
+    row.innerHTML='<button class="btn-more" id="moreBtn">+ Generate more scripts</button>';
+    results.appendChild(row);
+  }
+  function setBusy(b){
+    goBtn.disabled=b;
+    var mb=document.getElementById('moreBtn'); if(mb) mb.disabled=b;
+    if(b){ loading.classList.add('on'); startLoader(); } else { loading.classList.remove('on'); stopLoader(); }
+  }
+
+  var existingTitles=[];
+  function run(fresh){
+    if(fresh){ results.innerHTML=''; scriptIndex=0; existingTitles=[]; }
+    errBox.classList.remove('on');
+    var count=parseInt($('count').value,10)||3;
+    var oldMore=document.getElementById('moreRow'); if(oldMore) oldMore.remove();
+
+    var iglink=$('iglink').value.trim();
+    searching = !!iglink;
+    setBusy(true);
+
+    var prompt=buildPrompt(count, existingTitles);
+    var body={ model:"claude-sonnet-4-6", max_tokens:4000, messages:[{role:"user",content:prompt}] };
+    if(searching){ body.tools=[{ type:"web_search_20250305", name:"web_search" }]; }
+
+    fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(body)
+    })
+    .then(function(res){
+      return res.text().then(function(txt){ return { ok:res.ok, status:res.status, txt:txt }; });
+    })
+    .then(function(r){
+      var data;
+      try { data = JSON.parse(r.txt); }
+      catch(pe){
+        throw new Error('The server sent back something that wasn\u2019t readable' + (r.status ? ' (HTTP ' + r.status + ')' : '') + '. If you opened this file directly in a browser, that\u2019s expected \u2014 the generator only works when the tool is run inside Claude.');
+      }
+      if(!r.ok || (data && data.error)){
+        var m = (data && data.error && data.error.message) ? data.error.message : ('Request failed (HTTP ' + r.status + ').');
+        throw new Error(m);
+      }
+      var text=(data.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+      var parsed=extractJson(text);
+      if(!parsed || !parsed.scripts || !parsed.scripts.length){
+        throw new Error('The scripts came back in an unexpected shape \u2014 usually a one-off. Hit Try again, or drop to 3 scripts if you were on 5.');
+      }
+      setBusy(false);
+      if(fresh) renderAnalysis(parsed);
+      parsed.scripts.forEach(function(s){ renderCard(s); existingTitles.push(s.title); });
+      updateCount(); ensureMoreButton();
+    })
+    .catch(function(err){
+      setBusy(false);
+      errMsg.textContent = err.message || 'Something went wrong reaching the generator.';
+      errBox.classList.add('on');
+    });
+  }
+
+  goBtn.addEventListener('click', function(){ run(true); });
+  $('retry').addEventListener('click', function(){ run(scriptIndex===0); });
+
+})();
+</script>
+</body>
+</html>
