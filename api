@@ -1,16 +1,21 @@
 export default async function handler(req, res) {
-  // Allow CORS
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
   if (req.method !== "POST") {
     return res.status(405).json({
-      error: "Method Not Allowed",
+      error: {
+        message: "Method Not Allowed"
+      }
+    });
+  }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return res.status(500).json({
+      error: {
+        message: "ANTHROPIC_API_KEY is not configured."
+      }
     });
   }
 
@@ -25,7 +30,19 @@ export default async function handler(req, res) {
       body: JSON.stringify(req.body)
     });
 
-    const data = await response.json();
+    const text = await response.text();
+
+    let data;
+
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return res.status(response.status).json({
+        error: {
+          message: text
+        }
+      });
+    }
 
     return res.status(response.status).json(data);
 
@@ -34,7 +51,7 @@ export default async function handler(req, res) {
 
     return res.status(500).json({
       error: {
-        message: error.message
+        message: error.message || "Internal Server Error"
       }
     });
   }
